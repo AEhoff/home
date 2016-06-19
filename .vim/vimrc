@@ -26,6 +26,7 @@ Plug 'fmoralesc/vim-help-grimoire'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
+Plug 'junegunn/gv.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 
@@ -39,6 +40,8 @@ Plug 'Valloric/ListToggle'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-rsi'
+Plug 'derekwyatt/vim-fswitch'
+nnoremap <silent> <Leader>a :FSHere<cr>
 
 Plug 'machakann/vim-textobj-delimited'
 Plug 'PeterRincker/vim-argumentative'
@@ -51,6 +54,8 @@ Plug 'AndrewRadev/inline_edit.vim'
 Plug 'AndrewRadev/linediff.vim'
 
 Plug 'Valloric/YouCompleteMe', { 'do': function('startup#YCMInstall') }
+let g:ycm_path_to_python_interpreter = '/usr/bin/python'
+let g:ycm_server_keep_logfiles  = 1
 let g:ycm_confirm_extra_conf    = 0
 let g:ycm_complete_in_comments  = 1
 let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm_extra_conf.py'
@@ -81,7 +86,7 @@ let g:tagbar_autoclose = 1
 let g:tagbar_width = 55
 nnoremap <Leader>o :TagbarToggle<CR>
 
-Plug 'fatih/vim-go', { 'do': function('startup#GoBinsInstall') }
+" Plug 'fatih/vim-go', { 'do': function('startup#GoBinsInstall') }
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_structs = 1
@@ -92,12 +97,13 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 
 Plug 'tmux-plugins/vim-tmux'
 Plug 'kballard/vim-fish'
-Plug 'vimgineers/vim-hugefile'
+" Plug 'vimgineers/vim-hugefile'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 nnoremap <silent> g/ :Files<cr>
 
+Plug 'cespare/vim-toml'
 call plug#end()
 
 runtime! macros/matchit.vim
@@ -259,6 +265,7 @@ nmap <leader>e. :edit %%
 nmap <leader>v. :view %%
 
 nnoremap <C-n> :set invnumber<cr>
+nnoremap <Leader>gw :grep -w "<cword>"<cr>
 
 " Make selecting inside an HTML tag better
 xnoremap <silent> it itVkoj
@@ -322,5 +329,19 @@ if !has('gui_running') && s:is_iTerm
 
   Autocmd VimEnter,ColorScheme * call s:change_iterm2_profile()
 endif
+
+function! SyncAndRun(cmd)
+  try
+    silent call system( "vagrant rsync" )
+    silent call system( printf('tmux send-keys -t 2 q BSpace "%s" C-m', a:cmd ) )
+  catch /Vim:Interrupt/
+    redraw!
+    return
+  endtry
+  redraw!
+endfunction
+nnoremap <leader>r
+      \ :call SyncAndRun("./run_tests.py --skip-build ycmd.tests.typescript.subcommands_test")<cr>
+
 
 " Just so I don't lose them xD  ᕕ( ᐛ )ᕗ  ¯\_(ツ)_/¯
